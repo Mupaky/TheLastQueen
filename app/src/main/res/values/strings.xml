@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">The Last Queen</string>
+    <string name="edit_x"><![CDATA[3 < x < 15]]></string>
+    <string name="edit_y"><![CDATA[3 < y < 15]]></string>
+</resources>
