@@ -7,7 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -21,12 +23,16 @@ public class MainActivity extends AppCompatActivity {
     private int x = 5;
     private int y = 5;
     private boolean isNextColor = true;
+    private TextView playerOne, playerTwo;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        playerOne = findViewById(R.id.txt_player_one);
+        playerTwo = findViewById(R.id.txt_player_two);
 
         layoutsX = new ArrayList<>();
 
@@ -35,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
             y = intent.getIntExtra("y", 4);
 
 
-        Log.i("printera","x = " + x + "   y = " + y);
         game = new Game(x,y);
+        game.startGame();
         createTable();
         LinearLayout tableView = findViewById(R.id.layout_table);
         for(int i = 0; i <= layoutsX.size() - 1; i++){
@@ -46,9 +52,17 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        colorTurnChanger();
+
+    }
+
     private void createTable(){
         table = new ArrayList<>();
-        int var;
+        int id = 0;
         for(int i = 0; i <= x - 1; i++){
             layoutsX.add(makeLinearLayout());
             table.add(new ArrayList<>());
@@ -57,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
             for(int j = 0; j <= y - 1; j++){
 
                 ImageButton imageButton = makeImageButton();
+                imageButton.setId(id);
                 imageButton.setOnClickListener(onClickListener());
                 table.get(i).add(imageButton);
                 if(i % 2 == 0 && j == 0){
@@ -73,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
                         imageButton.setBackgroundColor(getResources().getColor(R.color.crema));
                     }
                 layoutsX.get(i).addView(imageButton);
+                id++;
             }
 
         }
@@ -89,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 1.0f);
         imageButton.setLayoutParams(lp);
+        imageButton.setAdjustViewBounds(true);
+        imageButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         return imageButton;
     }
@@ -109,22 +127,42 @@ public class MainActivity extends AppCompatActivity {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(game.placeQueen(x,y)){
+                if(game.placeQueen(view.getId())){
+
+                    colorTurnChanger();
+                    placeQueen(view);
+
                     Toast.makeText(getApplicationContext(),
                                     "Player " + game.getPlayerTurn() + " turn.",
                                     Toast.LENGTH_SHORT)
                             .show();
-                    if(game.checkForWinner() == 0){
+                    if(game.getPlayerTurn() == 0){
                         Toast.makeText(getApplicationContext(),
-                                        "Player " + game.getPlayerTurn() + " win.",
+                                        "Player " + game.getWinner() + " win.",
                                         Toast.LENGTH_SHORT)
                                 .show();
                     }
                 }
-
             }
         };
+    }
 
+    private void placeQueen(View view){
+        if(game.getPlayerTurn() == 1){
+            ((ImageButton)view).setImageResource(R.drawable.blackqueen);
+        }else if(game.getPlayerTurn() == 2){
+            ((ImageButton)view).setImageResource(R.drawable.whitequeen);
+        }
+    }
+
+    private void colorTurnChanger(){
+        if(game.getPlayerTurn() == 1){
+            playerOne.setBackgroundColor(getResources().getColor(R.color.green));
+            playerTwo.setBackgroundColor(getResources().getColor(R.color.white));
+        }else if(game.getPlayerTurn() == 2){
+            playerOne.setBackgroundColor(getResources().getColor(R.color.white));
+            playerTwo.setBackgroundColor(getResources().getColor(R.color.green));
+        }
     }
 
 

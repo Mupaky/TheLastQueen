@@ -2,28 +2,58 @@ package com.example.thelastqueen;
 
 import android.util.Log;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
 
-    private List<List<Boolean>> playerOne;
-    private List<List<Boolean>> playerTwo;
-    private int playerTurn = 0;
+    private final List<List<Boolean>> playerOne;
+    private final List<List<Boolean>> playerTwo;
+    private int playerTurn;
+    private int winner;
+    private final int maxWidth;
+    private final int maxHeight;
 
-    public Game(int maxWidth, int maxHeight){
-        playerOne = new ArrayList<>(maxWidth);
-        playerTwo = new ArrayList<>(maxHeight);
-        Log.i("evala", "Width: " + maxWidth + ", Height: " + maxHeight);
+    public Game(int maxHeight, int maxWidth){
+        playerOne = new ArrayList<>();
+        playerTwo = new ArrayList<>();
+        this.maxHeight = maxHeight;
+        this.maxWidth = maxWidth;
+        Log.i("proverkaWH", "Width: " + maxWidth + ", Height: " + maxHeight);
     }
 
     public void startGame(){
+        fillPlayerTables();
         this.playerTurn = 1;
     }
-    public boolean placeQueen(int x, int y){
+
+    public void stopGame(){
+        this.winner = playerTurn;
+        this.playerTurn = 0;
+    }
+
+    private void fillPlayerTables(){
+        for (int i = 0; i <= maxHeight - 1; i++){
+            playerOne.add(new ArrayList<>());
+            playerTwo.add(new ArrayList<>());
+            for (int j = 0; j <= maxWidth - 1; j++){
+                playerOne.get(i).add(Boolean.TRUE);
+                playerTwo.get(i).add(Boolean.TRUE);
+            }
+        }
+    }
+
+    public boolean placeQueen(int id){
+        int x = makeIdToX(id);
+        int y = makeIdToY(id);
         if(validateCoordinates(x,y)){
             blockPlaces(x,y);
-            changeTurn();
+            if(checkForWinner() != 0){
+                changeTurn();
+            }else{
+                stopGame();
+            }
             return  true;
         }
         return false;
@@ -32,27 +62,25 @@ public class Game {
         if(playerTurn == 1){
             //blocking player 2 table and the place for the queen
             playerOne.get(x).set(y, false);
-            blockUpToDown(x,y,playerTwo);
-            blockLeftToRight(x,y,playerTwo);
-            blockDiagonals(x,y,playerTwo);
-        }else{
+            blockUpToDown(y, playerTwo);
+            blockLeftToRight(x, playerTwo);
+            blockDiagonals(x, y, playerTwo);
+        }else if(playerTurn == 2){
             //blocking player 1 table and the place for the queen
             playerTwo.get(x).set(y, false);
-            blockUpToDown(x,y,playerOne);
-            blockLeftToRight(x,y,playerOne);
-            blockDiagonals(x,y,playerOne);
+            blockUpToDown(y, playerOne);
+            blockLeftToRight(x, playerOne);
+            blockDiagonals(x, y, playerOne);
         }
-
-
     }
 
-    private void blockUpToDown(int x, int y, List<List<Boolean>> player){
-        for(int i = 0; i <= player.size(); i++){
+    private void blockUpToDown(int y, List<List<Boolean>> player){
+        for(int i = 0; i <= player.size() - 1; i++){
             player.get(i).set(y, false);
         }
     }
 
-    private void blockLeftToRight(int x, int y, List<List<Boolean>> player){
+    private void blockLeftToRight(int x, List<List<Boolean>> player){
         for(int i = 0; i <= player.get(x).size() - 1; i++){
             player.get(x).set(i, false);
         }
@@ -60,10 +88,10 @@ public class Game {
 
     private void blockDiagonals(int x, int y, List<List<Boolean>> player){
         int count = 1;
-        if(x + 1 >= player.size() || x - 1 >= player.size()){
+        if(x + 1 >= player.size() || x - 1 >= 0){
             return;
         }
-        for(int i = (x + 1); i <= player.size(); i++){
+        for(int i = (x + 1); i <= player.size() - 1; i++){
             if(y + count <= player.get(x).size()){
                 player.get(i).set(y + count, false);
             }
@@ -73,6 +101,9 @@ public class Game {
             count++;
         }
         for(int i = (x - 1); i >= 0; i--){
+            if(x - 1 <= 0){
+                break;
+            }
             if(y + count <= player.get(x).size()){
                 player.get(i).set(y + count, false);
             }
@@ -84,7 +115,7 @@ public class Game {
 
 
     public int checkForWinner(){
-        if(!playerOne.contains(true)){
+        if(!playerOne.contains(Boolean.TRUE)){
             return 2;
         }else if(!playerTwo.contains(true)){
             return 1;
@@ -98,9 +129,7 @@ public class Game {
                 && y >= 0 && y <= playerOne.get(0).size() - 1){
             if(playerTurn == 1 && playerOne.get(x).get(y)){
                 return true;
-            }else if(playerTurn == 2 && playerTwo.get(x).get(y)){
-                return true;
-            }
+            }else return playerTurn == 2 && playerTwo.get(x).get(y);
         }
         return false;
     }
@@ -115,7 +144,27 @@ public class Game {
         }
     }
 
+    public int makeIdToX(int id){
+        if(id == 0){
+            return 0;
+        }
+        return (int)Math.floor(id/(maxHeight-1));
+    }
+
+    public int makeIdToY(int id){
+        if(id == 0){
+            return 0;
+        }
+        return id%maxWidth;
+    }
+
     public int getPlayerTurn() {
         return playerTurn;
     }
+
+    public int getWinner() {
+        return winner;
+    }
+
+
 }

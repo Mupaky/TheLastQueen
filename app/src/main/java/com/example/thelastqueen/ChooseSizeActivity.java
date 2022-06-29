@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ public class ChooseSizeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 x = Integer.parseInt(editX.getText().toString());
                 y = Integer.parseInt(editY.getText().toString());
+                Log.i("proverkaXY", "x = " + x + "   y = " + y);
                 if(!editX.getText().equals(null) && x > 3 && x < 15
                     && !editY.getText().equals(null) && y > 3 && y < 15){
                     startGameActivity();
