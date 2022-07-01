@@ -137,29 +137,41 @@ public class MainActivity extends AppCompatActivity {
 
     private View.OnClickListener onClickListener(){
         return view -> {
-            if(game.placeQueen(view.getId())){
-
-                colorTurnChanger();
-                placeQueen(view);
-
+            if(game.isStopped()){
                 Toast.makeText(getApplicationContext(),
-                                "Player " + game.getPlayerTurn() + " turn.",
+                                "Player " + game.getWinner() + " win.",
                                 Toast.LENGTH_SHORT)
                         .show();
-                if(game.getPlayerTurn() == 0){
+                return;
+            }
+
+            if(game.placeQueen(view.getId())){
+                Toast.makeText(getApplicationContext(),
+                                "Player " + game.getPlayerTurn() + " turn. Id = " +view.getId(),
+                                Toast.LENGTH_SHORT)
+                        .show();
+
+
+                placeQueen(view);
+
+
+                if(game.isStopped()){
                     Toast.makeText(getApplicationContext(),
                                     "Player " + game.getWinner() + " win.",
                                     Toast.LENGTH_SHORT)
                             .show();
+                }else{
+                    game.changeTurn();
+                    colorTurnChanger();
                 }
             }
         };
     }
 
     private void placeQueen(View view){
-        if(game.getPlayerTurn() == 1){
+        if(game.getPlayerTurn() == 2){
             ((ImageButton)view).setImageResource(R.drawable.blackqueen);
-        }else if(game.getPlayerTurn() == 2){
+        }else if(game.getPlayerTurn() == 1){
             ((ImageButton)view).setImageResource(R.drawable.whitequeen);
         }
     }

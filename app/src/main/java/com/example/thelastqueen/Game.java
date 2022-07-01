@@ -2,7 +2,6 @@ package com.example.thelastqueen;
 
 import android.util.Log;
 
-import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,7 @@ public class Game {
     private int winner;
     private int maxWidth;
     private int maxHeight;
+    private boolean isStopped;
 
     public Game(int maxHeight, int maxWidth){
         playerOne = new ArrayList<>();
@@ -26,11 +26,12 @@ public class Game {
     public void startGame(){
         fillPlayerTables();
         this.playerTurn = 1;
+        isStopped = false;
     }
 
-    public void stopGame(){
-        this.winner = playerTurn;
-        this.playerTurn = 0;
+    public void stopGame(int winner){
+        this.winner = winner;
+        isStopped = true;
     }
 
     private void fillPlayerTables(){
@@ -48,29 +49,26 @@ public class Game {
         int x = makeIdToX(id);
         int y = makeIdToY(id);
         if(validateCoordinates(x,y)){
-            blockPlaces(x,y);
-            if(checkForWinner() != 0){
-                changeTurn();
-            }else{
-                stopGame();
-            }
+            blockFields(x,y);
             return  true;
         }
         return false;
     }
-    private void blockPlaces(int x, int y){
+    private void blockFields(int x, int y){
         if(playerTurn == 1){
             //blocking player 2 table and the place for the queen
             playerOne.get(x).set(y, false);
             blockUpToDown(y, playerTwo);
             blockLeftToRight(x, playerTwo);
             blockDiagonals(x, y, playerTwo);
+            checkForWinner(playerTwo);
         }else if(playerTurn == 2){
             //blocking player 1 table and the place for the queen
             playerTwo.get(x).set(y, false);
             blockUpToDown(y, playerOne);
             blockLeftToRight(x, playerOne);
             blockDiagonals(x, y, playerOne);
+            checkForWinner(playerOne);
         }
     }
 
@@ -87,41 +85,87 @@ public class Game {
     }
 
     private void blockDiagonals(int x, int y, List<List<Boolean>> player){
+        blockDiagonalBotLeft(x, y, player);
+        blockDiagonalBotRight(x, y, player);
+        blockDiagonalTopLeft(x, y, player);
+        blockDiagonalTopRight(x, y, player);
+    }
+
+    private void blockDiagonalTopLeft(int x, int y, List<List<Boolean>> player){
         int count = 1;
-        if(x + 1 >= player.size() || x - 1 >= 0){
+        if(x - 1 < 0){
             return;
         }
-        for(int i = (x + 1); i <= player.size() - 1; i++){
-            if(y + count <= player.get(x).size() - 1){
-                player.get(i).set(y + count, false);
-            }
+        for(int i = (x - 1); i >= 0; i--){
             if(y - count >= 0){
                 player.get(i).set(y - count, false);
+            }
+            else{
+                break;
             }
             count++;
         }
-        count = 1;
-        for(int i = (x - 1); i >= 0; i--){
-            if(x - 1 <= 0){
-                break;
-            }
-            if(y + count <= player.get(x).size() - 1){
-                player.get(i).set(y + count, false);
-            }
+
+    }
+    private void blockDiagonalBotLeft(int x, int y, List<List<Boolean>> player){
+        int count = 1;
+        if(x + 1 >= player.size()){
+            return;
+        }
+        for(int i = (x + 1); i <= player.size() - 1; i++){
             if(y - count >= 0){
                 player.get(i).set(y - count, false);
             }
+            else{
+                break;
+            }
+            count++;
+        }
+    }
+    private void blockDiagonalTopRight(int x, int y, List<List<Boolean>> player){
+        int count = 1;
+        if(x - 1 < 0){
+            return;
+        }
+        for(int i = (x - 1); i >= 0; i--){
+            if(y + count <= player.get(0).size() - 1){
+                player.get(i).set(y + count, false);
+            }
+            else{
+                break;
+            }
+            count++;
+        }
+    }
+    private void blockDiagonalBotRight(int x, int y, List<List<Boolean>> player){
+        int count = 1;
+        if(x + 1 >= player.size()){
+            return;
+        }
+        for(int i = (x + 1); i <= player.size() - 1; i++){
+            if(y + count <= player.get(0).size() - 1){
+                player.get(i).set(y + count, false);
+            }
+            else{
+                break;
+            }
+            count++;
         }
     }
 
-    public int checkForWinner(){
-        if(!playerOne.contains(Boolean.TRUE)){
-            return 2;
-        }else if(!playerTwo.contains(true)){
-            return 1;
+    private boolean isBlocked(List<List<Boolean>> player){
+        for(int i = 0; i <= player.size() - 1; i++){
+            if(player.get(i).contains(true)){
+                return false;
+            }
         }
-        return 0;
+        return true;
+    }
 
+    public void checkForWinner(List<List<Boolean>> player){
+        if(isBlocked(player)){
+            stopGame(getPlayerTurn());
+        }
     }
 
     private boolean validateCoordinates(int x, int y){
@@ -139,7 +183,7 @@ public class Game {
 
 
 
-    private void changeTurn(){
+    public void changeTurn(){
         if(playerTurn == 1){
             this.playerTurn = 2;
         }else if(playerTurn == 2){
@@ -163,12 +207,17 @@ public class Game {
     }
 
     public int getPlayerTurn() {
-        return playerTurn;
+        int turn = playerTurn;
+        return turn;
     }
 
     public int getWinner() {
-        return winner;
+        int win = winner;
+        return win;
     }
 
-
+    public boolean isStopped() {
+        boolean isGameStopped = isStopped;
+        return isGameStopped;
+    }
 }
