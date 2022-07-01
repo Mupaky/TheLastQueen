@@ -8,12 +8,12 @@ import java.util.List;
 
 public class Game {
 
-    private final List<List<Boolean>> playerOne;
-    private final List<List<Boolean>> playerTwo;
+    private List<List<Boolean>> playerOne;
+    private List<List<Boolean>> playerTwo;
     private int playerTurn;
     private int winner;
-    private final int maxWidth;
-    private final int maxHeight;
+    private int maxWidth;
+    private int maxHeight;
 
     public Game(int maxHeight, int maxWidth){
         playerOne = new ArrayList<>();
@@ -92,7 +92,7 @@ public class Game {
             return;
         }
         for(int i = (x + 1); i <= player.size() - 1; i++){
-            if(y + count <= player.get(x).size()){
+            if(y + count <= player.get(x).size() - 1){
                 player.get(i).set(y + count, false);
             }
             if(y - count >= 0){
@@ -100,11 +100,12 @@ public class Game {
             }
             count++;
         }
+        count = 1;
         for(int i = (x - 1); i >= 0; i--){
             if(x - 1 <= 0){
                 break;
             }
-            if(y + count <= player.get(x).size()){
+            if(y + count <= player.get(x).size() - 1){
                 player.get(i).set(y + count, false);
             }
             if(y - count >= 0){
@@ -112,7 +113,6 @@ public class Game {
             }
         }
     }
-
 
     public int checkForWinner(){
         if(!playerOne.contains(Boolean.TRUE)){
@@ -125,11 +125,14 @@ public class Game {
     }
 
     private boolean validateCoordinates(int x, int y){
-        if(x >= 0 && x <= playerOne.size() - 1
-                && y >= 0 && y <= playerOne.get(0).size() - 1){
-            if(playerTurn == 1 && playerOne.get(x).get(y)){
-                return true;
-            }else return playerTurn == 2 && playerTwo.get(x).get(y);
+        if(x >= 0 && x < playerOne.size()
+                && y >= 0 && y < playerOne.get(0).size()){
+            if(playerTurn == 1){
+
+                return playerOne.get(x).get(y);
+            }else if(playerTurn == 2){
+                return playerTwo.get(x).get(y);
+            }
         }
         return false;
     }
@@ -145,17 +148,18 @@ public class Game {
     }
 
     public int makeIdToX(int id){
-        if(id == 0){
+        int var = (int)Math.ceil(id/maxWidth);
+        if(id == 0 || var == 0){
             return 0;
         }
-        return (int)Math.floor(id/(maxHeight-1));
+        return var;
     }
 
     public int makeIdToY(int id){
         if(id == 0){
             return 0;
         }
-        return id%maxWidth;
+        return id % maxWidth;
     }
 
     public int getPlayerTurn() {

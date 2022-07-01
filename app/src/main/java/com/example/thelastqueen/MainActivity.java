@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -24,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     private int y = 5;
     private boolean isNextColor = true;
     private TextView playerOne, playerTwo;
+    private float dpHeight;
+    private float dpWidth;
 
 
     @Override
@@ -43,8 +46,16 @@ public class MainActivity extends AppCompatActivity {
 
         game = new Game(x,y);
         game.startGame();
+
+        //Getting display metric for specific dp size on the imageButtons
+        DisplayMetrics displayMetrics = getApplicationContext().getResources().getDisplayMetrics();
+        this.dpHeight = displayMetrics.heightPixels / displayMetrics.density;
+        this.dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+
         createTable();
+
         LinearLayout tableView = findViewById(R.id.layout_table);
+
         for(int i = 0; i <= layoutsX.size() - 1; i++){
             tableView.addView(layoutsX.get(i));
         }
@@ -57,6 +68,8 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         colorTurnChanger();
+
+
 
     }
 
@@ -72,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
                 ImageButton imageButton = makeImageButton();
                 imageButton.setId(id);
-                imageButton.setOnClickListener(onClickListener());
                 table.get(i).add(imageButton);
                 if(i % 2 == 0 && j == 0){
                     isNextColor = true;
@@ -100,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton imageButton = new ImageButton(getApplicationContext());
         LinearLayout.LayoutParams lp =
-                new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                1.0f);
+                new LinearLayout.LayoutParams((int)Math.ceil(dpWidth/y),
+                                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                                1.0f);
         imageButton.setLayoutParams(lp);
         imageButton.setAdjustViewBounds(true);
         imageButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        imageButton.setOnClickListener(onClickListener());
 
         return imageButton;
     }
@@ -116,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout.LayoutParams lp =
                 new LinearLayout.LayoutParams
                         (LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                (int)Math.ceil(dpHeight/x),
                                 1.0f);
                 linearLayout.setLayoutParams(lp);
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -124,24 +136,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private View.OnClickListener onClickListener(){
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(game.placeQueen(view.getId())){
+        return view -> {
+            if(game.placeQueen(view.getId())){
 
-                    colorTurnChanger();
-                    placeQueen(view);
+                colorTurnChanger();
+                placeQueen(view);
 
+                Toast.makeText(getApplicationContext(),
+                                "Player " + game.getPlayerTurn() + " turn.",
+                                Toast.LENGTH_SHORT)
+                        .show();
+                if(game.getPlayerTurn() == 0){
                     Toast.makeText(getApplicationContext(),
-                                    "Player " + game.getPlayerTurn() + " turn.",
+                                    "Player " + game.getWinner() + " win.",
                                     Toast.LENGTH_SHORT)
                             .show();
-                    if(game.getPlayerTurn() == 0){
-                        Toast.makeText(getApplicationContext(),
-                                        "Player " + game.getWinner() + " win.",
-                                        Toast.LENGTH_SHORT)
-                                .show();
-                    }
                 }
             }
         };
