@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,18 +30,25 @@ public class ChooseSizeActivity extends AppCompatActivity {
         btnStartGame.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                x = Integer.parseInt(editX.getText().toString());
-                y = Integer.parseInt(editY.getText().toString());
-                Log.i("proverkaXY", "x = " + x + "   y = " + y);
-                if(!editX.getText().equals(null) && x > 3 && x < 15
-                    && !editY.getText().equals(null) && y > 3 && y < 15){
-                    startGameActivity();
+                if(!editX.getText().toString().equals("") || !editY.getText().toString().equals("")){
+                    x = Integer.parseInt(editX.getText().toString());
+                    y = Integer.parseInt(editY.getText().toString());
+                    if( x > 3 && x < 15
+                             && y > 3 && y < 15){
+                        startGameActivity();
+                    }else{
+                        Toast.makeText(getApplicationContext(),
+                                        "Table size should be in range",
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    }
                 }else{
                     Toast.makeText(getApplicationContext(),
-                                    "Table size should be in range",
+                                    "Fill table size range with correct INTEGERS :D",
                                     Toast.LENGTH_SHORT)
                             .show();
                 }
+
 
             }
         });

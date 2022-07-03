@@ -5,13 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.thelastqueen.game.Game;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,6 +72,39 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private View.OnClickListener onClickListener(){
+        return view -> {
+            if(game.isStopped()){
+                Toast.makeText(getApplicationContext(),
+                                "Player " + game.getWinner() + " win.",
+                                Toast.LENGTH_SHORT)
+                        .show();
+                return;
+            }
+
+            if(game.placeFigure(view.getId())){
+                Toast.makeText(getApplicationContext(),
+                                "Player " + game.getPlayerTurn() + " turn. Id = " +view.getId(),
+                                Toast.LENGTH_SHORT)
+                        .show();
+
+
+                placeQueen(view);
+
+
+                if(game.isStopped()){
+                    Toast.makeText(getApplicationContext(),
+                                    "Player " + game.getWinner() + " win.",
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                }else{
+                    game.changeTurn();
+                    colorTurnChanger();
+                }
+            }
+        };
     }
 
     private void createTable(){
@@ -135,38 +169,7 @@ public class MainActivity extends AppCompatActivity {
         return  linearLayout;
     }
 
-    private View.OnClickListener onClickListener(){
-        return view -> {
-            if(game.isStopped()){
-                Toast.makeText(getApplicationContext(),
-                                "Player " + game.getWinner() + " win.",
-                                Toast.LENGTH_SHORT)
-                        .show();
-                return;
-            }
 
-            if(game.placeQueen(view.getId())){
-                Toast.makeText(getApplicationContext(),
-                                "Player " + game.getPlayerTurn() + " turn. Id = " +view.getId(),
-                                Toast.LENGTH_SHORT)
-                        .show();
-
-
-                placeQueen(view);
-
-
-                if(game.isStopped()){
-                    Toast.makeText(getApplicationContext(),
-                                    "Player " + game.getWinner() + " win.",
-                                    Toast.LENGTH_SHORT)
-                            .show();
-                }else{
-                    game.changeTurn();
-                    colorTurnChanger();
-                }
-            }
-        };
-    }
 
     private void placeQueen(View view){
         if(game.getPlayerTurn() == 2){
