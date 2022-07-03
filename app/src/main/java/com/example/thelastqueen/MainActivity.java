@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.thelastqueen.game.Game;
+import com.example.thelastqueen.templateHelper.ViewHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,13 +112,14 @@ public class MainActivity extends AppCompatActivity {
         table = new ArrayList<>();
         int id = 0;
         for(int i = 0; i <= x - 1; i++){
-            layoutsX.add(makeLinearLayout());
+            layoutsX.add(ViewHelper.makeLinearLayout(getApplicationContext(), (int)dpHeight, x));
             table.add(new ArrayList<>());
 
 
             for(int j = 0; j <= y - 1; j++){
 
-                ImageButton imageButton = makeImageButton();
+                ImageButton imageButton = ViewHelper.makeImageButton(getApplicationContext(), (int)dpWidth, y);
+                imageButton.setOnClickListener(onClickListener());
                 imageButton.setId(id);
                 table.get(i).add(imageButton);
                 if(i % 2 == 0 && j == 0){
@@ -139,37 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
-
-    private ImageButton makeImageButton(){
-
-        ImageButton imageButton = new ImageButton(getApplicationContext());
-        LinearLayout.LayoutParams lp =
-                new LinearLayout.LayoutParams((int)Math.ceil(dpWidth/y),
-                                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                                1.0f);
-        imageButton.setLayoutParams(lp);
-        imageButton.setAdjustViewBounds(true);
-        imageButton.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        imageButton.setOnClickListener(onClickListener());
-
-        return imageButton;
-    }
-
-    private LinearLayout makeLinearLayout(){
-        LinearLayout linearLayout = new LinearLayout(getApplicationContext());
-        LinearLayout.LayoutParams lp =
-                new LinearLayout.LayoutParams
-                        (LinearLayout.LayoutParams.MATCH_PARENT,
-                                (int)Math.ceil(dpHeight/x),
-                                1.0f);
-                linearLayout.setLayoutParams(lp);
-        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-        return  linearLayout;
-    }
-
-
 
     private void placeQueen(View view){
         if(game.getPlayerTurn() == 2){
